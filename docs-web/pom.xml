@@ -229,7 +229,7 @@
         
         <plugins>
         
-          <!-- Launch NPM & Grunt -->
+          <!-- Launch NPM & Grunt (only if dist doesn't exist) -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -238,18 +238,28 @@
                 <phase>generate-sources</phase>
                 <configuration>
                   <target name="building">
+                    <!-- Check if dist folder exists - if it does, skip npm/grunt -->
+                    <condition property="skip.npm.grunt">
+                      <available file="${project.basedir}/src/main/webapp/dist" type="dir"/>
+                    </condition>
+                    
+                    <!-- Only run npm/grunt if dist doesn't exist -->
+                    <echo unless="skip.npm.grunt" message="Building frontend with npm/grunt..."/>
+                    <echo if="skip.npm.grunt" message="dist/ folder exists, skipping npm/grunt build"/>
+                    
                     <!-- npm install -->
-                    <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true">
+                    <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true" unless="skip.npm.grunt">
                       <arg line="/c npm install" />
                     </exec>
-                    <exec executable="npm" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true">
+                    <exec executable="npm" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true" unless="skip.npm.grunt">
                       <arg line="install" />
                     </exec>
+                    
                     <!-- grunt -->
-                    <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true">
+                    <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true" unless="skip.npm.grunt">
                       <arg line="/c grunt --apiurl=api" />
                     </exec>
-                    <exec executable="grunt" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true">
+                    <exec executable="grunt" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true" unless="skip.npm.grunt">
                       <arg line="--apiurl=api" />
                     </exec>
                   </target>
