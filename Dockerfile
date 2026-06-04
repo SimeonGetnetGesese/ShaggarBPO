@@ -21,6 +21,14 @@ RUN mvn clean install -DskipTests -Pprod
 FROM tomcat:10-jdk11-openjdk-slim
 RUN rm -rf /usr/local/tomcat/webapps/ROOT && \
     mkdir -p /root/.teedy/db
+
 COPY --from=backend-builder /build/docs-web/target/docs-web-*.war /usr/local/tomcat/webapps/ROOT.war
+
+# Copy password initialization script
+COPY init-password.sh /usr/local/tomcat/init-password.sh
+RUN chmod +x /usr/local/tomcat/init-password.sh
+
 EXPOSE 8080
-CMD ["catalina.sh", "run"]
+
+# Start Tomcat and then initialize password
+CMD /bin/bash -c "/usr/local/tomcat/bin/catalina.sh run & sleep 15 && /usr/local/tomcat/init-password.sh && wait"
