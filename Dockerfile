@@ -1,22 +1,18 @@
-# Stage 1: Build the frontend assets
-FROM node:18-bullseye AS frontend-builder
-WORKDIR /build/frontend
-COPY docs-web/src/main/webapp/package*.json ./
-RUN npm install
-COPY docs-web/src/main/webapp .
-RUN npm install -g grunt-cli
-RUN grunt
+# Single build stage with Maven and Node.js
+FROM maven:3-openjdk-11 AS builder
 
-# Stage 2: Build the Java backend
-FROM maven:3-openjdk-11 AS backend-builder
+# Install Node.js and npm (required by frontend-maven-plugin)
+RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /build
-COPY --from=frontend-builder /build/frontend/dist ./docs-web/src/main/webapp/dist
 COPY . .
+
+# Run Maven build (which uses frontend-maven-plugin to download npm, run grunt, etc.)
 RUN mvn clean install -DskipTests -Pprod
 
-# Stage 3: Runtime stage
+# Runtime stage
 FROM tomcat:10-jdk11-openjdk-slim
 RUN rm -rf /usr/local/tomcat/webapps/ROOT
-COPY --from=backend-builder /build/docs-web/target/docs-web-*.war /usr/local/tomcat/webapps/ROOT.war
+COPY --from=builder /build/docs-web/target/docs-web-*.war /usr/local/tomcat/webapps/ROOT.war
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
