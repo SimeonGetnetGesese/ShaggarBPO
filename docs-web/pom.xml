@@ -1,4 +1,4 @@
-[6/4/2026 11:45 PM] Simon Getnet: <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -144,7 +144,8 @@
       </resource>
     </resources>
   </build>
-[6/4/2026 11:45 PM] Simon Getnet: <profiles>
+
+  <profiles>
     <!-- Development profile (active by default) -->
     <profile>
       <id>dev</id>
@@ -162,14 +163,14 @@
             <directory>src/dev/resources</directory>
             <filtering>false</filtering>
             <excludes>
-              <exclude>/config.properties</exclude>
+              <exclude>**/config.properties</exclude>
             </excludes>
           </resource>
           <resource>
             <directory>src/dev/resources</directory>
             <filtering>true</filtering>
             <includes>
-              <include>/config.properties</include>
+              <include>**/config.properties</include>
             </includes>
           </resource>
         </resources>
@@ -214,14 +215,14 @@
             <directory>src/prod/resources</directory>
             <filtering>false</filtering>
             <excludes>
-              <exclude>/config.properties</exclude>
+              <exclude>**/config.properties</exclude>
             </excludes>
           </resource>
           <resource>
             <directory>src/prod/resources</directory>
             <filtering>true</filtering>
             <includes>
-              <include>/config.properties</include>
+              <include>**/config.properties</include>
             </includes>
           </resource>
         </resources>
@@ -264,7 +265,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-war-plugin</artifactId>
-[6/4/2026 11:45 PM] Simon Getnet: <configuration>
+            <configuration>
               <warSourceDirectory>${project.basedir}/src/main/webapp/dist</warSourceDirectory>
               <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
             </configuration>
