@@ -1,5 +1,8 @@
-# Build stage
-FROM maven:3.8-openjdk-11 AS builder
+# Build stage with Maven and Node.js
+FROM node:18-bullseye AS builder
+
+# Install Maven and Java
+RUN apt-get update && apt-get install -y maven openjdk-11-jdk && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
 
