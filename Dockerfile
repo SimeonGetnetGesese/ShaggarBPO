@@ -1,18 +1,39 @@
-# Single build stage with Maven and Node.js
-FROM maven:3-openjdk-11 AS builder
+# Stage 1: Build the frontend assets
+# Using an image that already has Node.js pre-installed
+FROM node:18-bullseye AS frontend-builder
 
-# Install Node.js and npm (required by frontend-maven-plugin)
-RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/*
+WORKDIR /build/frontend
+# Copy only the frontend-specific files first for better caching
+COPY docs-web/src/main/webapp/package*.json ./
+RUN npm install
+
+# Copy the rest of the frontend source code
+COPY docs-web/src/main/webapp .
+
+# Install Grunt CLI and grunt-apidoc globally
+RUN npm install -g grunt-cli grunt-apidoc
+# Run the Grunt build to generate static files (CSS, JS, etc.)
+RUN grunt
+
+# Stage 2: Build the Java backend and package the WAR
+FROM maven:3-openjdk-11 AS backend-builder
 
 WORKDIR /build
+# Copy the entire project source code
 COPY . .
+# Copy the pre-built frontend assets from the previous stage
+# This is the key step that replaces the need for npm/grunt in the Maven build
+COPY --from=frontend-builder /build/frontend/dist ./docs-web/src/main/webapp/dist
 
-# Run Maven build (which uses frontend-maven-plugin to download npm, run grunt, etc.)
+# Run the Maven build, skipping tests and using the 'prod' profile
 RUN mvn clean install -DskipTests -Pprod
 
-# Runtime stage
+# Stage 3: Create the final, lightweight runtime image
 FROM tomcat:10-jdk11-openjdk-slim
+
+# Remove the default Tomcat ROOT app and copy our WAR file
 RUN rm -rf /usr/local/tomcat/webapps/ROOT
-COPY --from=builder /build/docs-web/target/docs-web-*.war /usr/local/tomcat/webapps/ROOT.war
+COPY --from=backend-builder /build/docs-web/target/docs-web-*.war /usr/local/tomcat/webapps/ROOT.war
+
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
