@@ -243,11 +243,7 @@
                       <available file="${project.basedir}/src/main/webapp/dist" type="dir"/>
                     </condition>
                     
-                    <!-- Only run npm/grunt if dist doesn't exist -->
-                    <echo unless="skip.npm.grunt" message="Building frontend with npm/grunt..."/>
-                    <echo if="skip.npm.grunt" message="dist/ folder exists, skipping npm/grunt build"/>
-                    
-                    <!-- npm install -->
+                    <!-- npm install (skipped if dist exists) -->
                     <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true" unless="skip.npm.grunt">
                       <arg line="/c npm install" />
                     </exec>
@@ -255,7 +251,7 @@
                       <arg line="install" />
                     </exec>
                     
-                    <!-- grunt -->
+                    <!-- grunt (skipped if dist exists) -->
                     <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true" unless="skip.npm.grunt">
                       <arg line="/c grunt --apiurl=api" />
                     </exec>
