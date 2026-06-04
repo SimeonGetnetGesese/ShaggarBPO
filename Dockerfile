@@ -9,8 +9,9 @@ RUN grunt --force
 
 # Stage 2: Build the Java backend with Node.js available
 FROM maven:3-openjdk-11 AS backend-builder
-# Install Node.js and npm in this stage so Maven can execute them
+# Install Node.js, npm, and grunt-cli in this stage so Maven can execute them
 RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/*
+RUN npm install -g grunt-cli
 
 WORKDIR /build
 COPY . .
