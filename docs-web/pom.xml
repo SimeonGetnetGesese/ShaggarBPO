@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+[6/4/2026 11:45 PM] Simon Getnet: <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -144,8 +144,7 @@
       </resource>
     </resources>
   </build>
-
-  <profiles>
+[6/4/2026 11:45 PM] Simon Getnet: <profiles>
     <!-- Development profile (active by default) -->
     <profile>
       <id>dev</id>
@@ -163,14 +162,14 @@
             <directory>src/dev/resources</directory>
             <filtering>false</filtering>
             <excludes>
-              <exclude>**/config.properties</exclude>
+              <exclude>/config.properties</exclude>
             </excludes>
           </resource>
           <resource>
             <directory>src/dev/resources</directory>
             <filtering>true</filtering>
             <includes>
-              <include>**/config.properties</include>
+              <include>/config.properties</include>
             </includes>
           </resource>
         </resources>
@@ -215,21 +214,21 @@
             <directory>src/prod/resources</directory>
             <filtering>false</filtering>
             <excludes>
-              <exclude>**/config.properties</exclude>
+              <exclude>/config.properties</exclude>
             </excludes>
           </resource>
           <resource>
             <directory>src/prod/resources</directory>
             <filtering>true</filtering>
             <includes>
-              <include>**/config.properties</include>
+              <include>/config.properties</include>
             </includes>
           </resource>
         </resources>
         
         <plugins>
         
-          <!-- Launch NPM & Grunt (only if dist doesn't exist) -->
+          <!-- Launch NPM & Grunt -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -238,24 +237,18 @@
                 <phase>generate-sources</phase>
                 <configuration>
                   <target name="building">
-                    <!-- Check if dist folder exists - if it does, skip npm/grunt -->
-                    <condition property="skip.npm.grunt">
-                      <available file="${project.basedir}/src/main/webapp/dist" type="dir"/>
-                    </condition>
-                    
-                    <!-- npm install (skipped if dist exists) -->
-                    <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true" unless="skip.npm.grunt">
+                    <!-- npm install -->
+                    <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true">
                       <arg line="/c npm install" />
                     </exec>
-                    <exec executable="npm" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true" unless="skip.npm.grunt">
+                    <exec executable="npm" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true">
                       <arg line="install" />
                     </exec>
-                    
-                    <!-- grunt (skipped if dist exists) -->
-                    <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true" unless="skip.npm.grunt">
+                    <!-- grunt -->
+                    <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true">
                       <arg line="/c grunt --apiurl=api" />
                     </exec>
-                    <exec executable="grunt" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true" unless="skip.npm.grunt">
+                    <exec executable="grunt" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true">
                       <arg line="--apiurl=api" />
                     </exec>
                   </target>
@@ -271,7 +264,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-war-plugin</artifactId>
-            <configuration>
+[6/4/2026 11:45 PM] Simon Getnet: <configuration>
               <warSourceDirectory>${project.basedir}/src/main/webapp/dist</warSourceDirectory>
               <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
             </configuration>
