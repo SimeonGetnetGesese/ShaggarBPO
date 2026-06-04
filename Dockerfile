@@ -9,19 +9,16 @@ RUN grunt --force
 
 # Stage 2: Build the Java backend with Node.js available
 FROM maven:3-openjdk-11 AS backend-builder
-# Install Node.js, npm, and grunt-cli in this stage so Maven can execute them
 RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/*
 RUN npm install -g grunt-cli
 
 WORKDIR /build
 COPY . .
-# Copy pre-built frontend assets
 COPY --from=frontend-builder /build/frontend/dist ./docs-web/src/main/webapp/dist
-# Maven can now run npm/grunt successfully
 RUN mvn clean install -DskipTests -Pprod
 
 # Stage 3: Create the final runtime image
-FROM tomcat:9-jdk11-openjdk-slim
+FROM tomcat:10-jdk11-openjdk-slim
 RUN rm -rf /usr/local/tomcat/webapps/ROOT && \
     mkdir -p /root/.teedy/db
 COPY --from=backend-builder /build/docs-web/target/docs-web-*.war /usr/local/tomcat/webapps/ROOT.war
