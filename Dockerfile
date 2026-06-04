@@ -1,5 +1,6 @@
-# Build stage
+# Build stage with Maven + Node.js (for npm)
 FROM maven:3-openjdk-11 AS builder
+RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
 COPY . .
 RUN mvn clean install -DskipTests -Pprod
